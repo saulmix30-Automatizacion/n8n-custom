@@ -1,17 +1,16 @@
-FROM n8nio/n8n:latest
+# 1. Empezar con la imagen oficial de n8n
+FROM n8nio/n8n
 
-# Instalar miniconda
-RUN apk add --no-cache wget bash && \
-    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
-    chmod +x Miniconda3-latest-Linux-x86_64.sh && \
-    ./Miniconda3-latest-Linux-x86_64.sh -b -p /opt/conda && \
-    rm Miniconda3-latest-Linux-x86_64.sh
+# 2. Cambiar al usuario root para poder instalar programas
+USER root
 
-# Configurar PATH para conda
-ENV PATH="/opt/conda/bin:$PATH"
+# 3. Actualizar el gestor de paquetes e instalar pip
+RUN apk update && apk add --no-cache py3-pip
 
-# Instalar ReportLab con conda
-RUN conda install -c conda-forge reportlab -y
+# 4. Usar pip para FORZAR la instalación de la librería,
+#    ignorando la protección del sistema operativo.
+#    Esto es necesario para que el entorno aislado del nodo "Code" pueda encontrarla.
+RUN pip install --no-cache-dir --break-system-packages reportlab
 
-# Verificar instalación
-RUN python -c "import reportlab; print('ReportLab version:', reportlab.__version__)"
+# 5. Volver al usuario normal de n8n por seguridad
+USER node
