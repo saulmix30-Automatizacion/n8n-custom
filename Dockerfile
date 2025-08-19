@@ -1,13 +1,17 @@
 FROM n8nio/n8n:latest
 
-# Force rebuild - cambiar este número cuando actualices: v2
-RUN echo "Build version 2.0"
+# Instalar miniconda
+RUN apk add --no-cache wget bash && \
+    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
+    chmod +x Miniconda3-latest-Linux-x86_64.sh && \
+    ./Miniconda3-latest-Linux-x86_64.sh -b -p /opt/conda && \
+    rm Miniconda3-latest-Linux-x86_64.sh
 
-# Instalar Python y pip
-RUN apk update && apk add --no-cache py3-pip
+# Configurar PATH para conda
+ENV PATH="/opt/conda/bin:$PATH"
 
-# Instalar ReportLab
-RUN pip install --no-cache-dir --break-system-packages reportlab
+# Instalar ReportLab con conda
+RUN conda install -c conda-forge reportlab -y
 
 # Verificar instalación
-RUN python3 -c "import reportlab; print('ReportLab version:', reportlab.__version__)"
+RUN python -c "import reportlab; print('ReportLab version:', reportlab.__version__)"
